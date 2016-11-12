@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Game of Life</title>
+        <link rel="stylesheet" href="gameoflife.css"/>
+        <script
+            src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
+        <script src="gameoflife.js"></script>
+    </head>
+    <body>
+        <canvas id="game_canvas" width="800" height="600"></canvas>
+        <div>
+            <label for="gridx">Grid X:</label>
+            <input id="gridx" type="text" value="100"/>
+            <label for="gridy">Grid Y:</label>
+            <input id="gridy" type="text" value="75"/>
+            <label for="pattern">Pattern:</label>
+            <select id="pattern">
+                <option value="Cell">Cell</option>
+                <option value="Block">Block</option>
+                <option value="Blinker">Blinker</option>
+                <option value="Toad">Toad</option>
+                <option value="Glider">Glider</option>
+                <option value="Spaceship">Spaceship</option>
+                <option value="RPentomino">R-Pentomino</option>
+                <option value="Diehard">Diehard</option>
+                <option value="Acorn">Acorn</option>
+            </select>
+            <button id="draw">Draw</button>
+            <button id="play">Play</button>
+            <button id="stop">Stop</button>
+            Generations: <span id="gen_count">0</span>
+            <!--a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Reference</a -->
+        </div>
+    </body>
+</html>
