@@ -2,6 +2,10 @@ $(function() {
 
     var c = document.getElementById("game_canvas");
     var ctx = c.getContext("2d");
+    var ALIVE = 1;
+    var DEAD = 0;
+
+    var gridmodel;
     var dim = 4;
     var gridw = c.width / dim;
     var gridh = c.height / dim;
@@ -9,14 +13,16 @@ $(function() {
     var gridymin = 0;
     var gridxmax = gridw - 1;
     var gridymax = gridh - 1;
-    var gridmodel;
-    // which index of the pair is active right now
     var modelIndex = 0;
-    var ALIVE = 1;
-    var DEAD = 0;
     var playing = false;
 
+    var cellColors = new Array("red", "green", "blue");
+    var cellColorIndex = 0;
+
     function initModel() {
+        dim = 4;
+        modelIndex = 0;
+        playing = false;
         gridmodel = new Array(gridw);
         for (var x=0; x<gridw; x++) {
             gridmodel[x] = new Array(gridh);
@@ -113,16 +119,23 @@ $(function() {
     }
 
     function tickModel() {
+        var cellColor = cellColors[cellColorIndex++];
+        if (cellColorIndex == cellColors.length) {
+            cellColorIndex = 0;
+        }
         var nextModelIndex = (modelIndex == 0 ? 1 : 0);
         for (var x=0; x<gridw; x++) {
             for (var y=0; y<gridh; y++) {
                 var count = countLiveNeighbors(x, y);
-                var nextState = computeCellState(gridmodel[x][y][modelIndex], count);
+                var currentState = gridmodel[x][y][modelIndex];
+                var nextState = computeCellState(currentState, count);
                 gridmodel[x][y][nextModelIndex] = nextState;
-                if (nextState == ALIVE) {
-                    fillCell(x, y);
-                } else {
-                    clearCell(x, y);
+                if (nextState != currentState) {
+                    if (nextState == ALIVE) {
+                        fillCell(x, y, cellColor);
+                    } else {
+                        clearCell(x, y);
+                    }
                 }
             }
         }
@@ -150,19 +163,25 @@ $(function() {
         }
     }
 
-    function fillCell(gridx, gridy) {
+    function fillCell(gridx, gridy, cellColor) {
         if (gridx < gridxmin || gridx > gridxmax ||
             gridy < gridymin || gridy > gridymax)
         {
             return;
         }
-        ctx.fillStyle = "black";
+        if (cellColor) {
+            ctx.fillStyle = cellColor;
+        } else {
+            ctx.fillStyle = "black";
+        }
+        ctx.clearRect(gridx*dim+1, gridy*dim+1, dim-2, dim-2);
         ctx.fillRect(gridx*dim+1, gridy*dim+1, dim-2, dim-2);
     }
 
     function clearCell(gridx, gridy) {
-        ctx.fillStyle = "white";
-        ctx.fillRect(gridx*dim+1, gridy*dim+1, dim-2, dim-2);
+        //ctx.fillStyle = "white";
+        //ctx.fillRect(gridx*dim+1, gridy*dim+1, dim-2, dim-2);
+        ctx.clearRect(gridx*dim+1, gridy*dim+1, dim-2, dim-2);
     }
 
     function drawPattern(pattern, gridx, gridy) {
@@ -225,7 +244,40 @@ $(function() {
             makeCellLive(gridx+4, gridy+2);
             makeCellLive(gridx+5, gridy+2);
             makeCellLive(gridx+6, gridy+2);
+        } else if (pattern == 'BLSEgen2') {
+            makeCellLive(gridx, gridy);
+            makeCellLive(gridx+1, gridy);
+            makeCellLive(gridx+2, gridy);
+            makeCellLive(gridx+3, gridy);
+            makeCellLive(gridx+4, gridy);
+            makeCellLive(gridx+5, gridy);
+            makeCellLive(gridx+6, gridy);
+            makeCellLive(gridx+7, gridy);
+            makeCellLive(gridx+9, gridy);
+            makeCellLive(gridx+10, gridy);
+            makeCellLive(gridx+11, gridy);
+            makeCellLive(gridx+12, gridy);
+            makeCellLive(gridx+13, gridy);
+            makeCellLive(gridx+17, gridy);
+            makeCellLive(gridx+18, gridy);
+            makeCellLive(gridx+19, gridy);
+            makeCellLive(gridx+26, gridy);
+            makeCellLive(gridx+27, gridy);
+            makeCellLive(gridx+28, gridy);
+            makeCellLive(gridx+29, gridy);
+            makeCellLive(gridx+30, gridy);
+            makeCellLive(gridx+31, gridy);
+            makeCellLive(gridx+32, gridy);
+            makeCellLive(gridx+34, gridy);
+            makeCellLive(gridx+35, gridy);
+            makeCellLive(gridx+36, gridy);
+            makeCellLive(gridx+37, gridy);
+            makeCellLive(gridx+38, gridy);
         }
+    }
+
+    function setGenCount(count) {
+        $('#gen_count').text(count);
     }
 
     function play() {
@@ -236,8 +288,8 @@ $(function() {
                 if (!playing) return;
                 tickModel();
                 genCount++;
-                $('#gen_count').text(genCount);
-                setTimeout(ticker, 400);
+                setGenCount(genCount);
+                setTimeout(ticker, 100);
             };
             ticker();
         }
@@ -249,12 +301,18 @@ $(function() {
         }
     }
 
+    function reset() {
+        initModel();
+        setGenCount(0);
+        ctx.clearRect(gridxmin, gridymin, c.width, c.height);
+    }
+
     function initControls() {
         $("#draw").click(function() {
             var pattern = $('#pattern').val();
-            var gridx = parseInt($("#gridx").val());
-            var gridy = parseInt($("#gridy").val());
-            drawPattern(pattern, gridx, gridy);
+            var x = parseInt($("#gridx").val());
+            var y = parseInt($("#gridy").val());
+            drawPattern(pattern, x, y);
         });
         $("#play").click(function() {
             play();
@@ -262,9 +320,11 @@ $(function() {
         $("#stop").click(function() {
             stop();
         });
+        $("#reset").click(function() {
+            reset();
+        });
     }
 
-    initModel();
-    drawGrid();
     initControls();
+    reset();
 });
